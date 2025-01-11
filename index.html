@@ -81,7 +81,29 @@
         .card.show {
             opacity: 1;
         }
+
+        .modal-dialog {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50%;
+            transform: translateY(40%) !important;
+            width: 300px;
+            height: 450px;
+        }
+
+        .modal-content {
+            width: 300px;
+            height: 450px;
+            background-size: cover;
+        }
     </style>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
 </head>
 
 <body>
@@ -92,10 +114,14 @@
     <div class="content">
         <div class="card-container"></div>
     </div>
-    <div>
-        <input type="number" id="cardCountInput" placeholder="Enter number of cards" />
-        <button onclick="generateCards()">Generate Cards</button>
+
+    <!-- Modal HTML structure -->
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content"></div>
+        </div>
     </div>
+
     <script>
         function generateCards(cardNumber) {
             const container = document.querySelector('.card-container');
@@ -107,7 +133,6 @@
                 const card = document.createElement('div');
                 card.classList.add('card');
                 card.style.backgroundImage = `url(assets/lucky-money/${getRandomImage()})`
-                card.style.backgroundColor = getRandomColor();
                 card.textContent = i + 1;
                 container.appendChild(card);
             }
@@ -124,20 +149,11 @@
             cards.forEach((card, index) => {
                 setTimeout(() => {
                     const angle = startAngle + step * index;
-                    card.style.setProperty('--angle', `${angle}deg`); // Cập nhật góc
+                    card.style.setProperty('--angle', `${angle}deg`);
                     card.style.transform = `translateX(-50%) rotateZ(${angle}deg) scale(1)`;
                     card.classList.add('show');
                 }, index * 300);
             });
-        }
-
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
         }
 
         function getRandomImage() {
@@ -149,8 +165,15 @@
 
         window.requestAnimationFrame(() => {
             setTimeout(() => {
-                let cardNumber = prompt("Please enter your number", 10);
+                let cardNumber = 10;
                 generateCards(cardNumber)
+                $('.card').click(function (event) {
+                    const clickedCard = $(this);
+                    const backgroundUrl = clickedCard.css('background-image');
+                    const url = backgroundUrl.replace('url("', '').replace('")', '');
+                    $(".modal-content").css('background-image', `url(${url})`);
+                    $('#myModal').modal('show');
+                });
             }, 500);
         });
     </script>
