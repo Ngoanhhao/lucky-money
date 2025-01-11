@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Background</title>
+    <style>
+        /* Reset margin and padding for a clean layout */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+            overflow: hidden;
+            /* Prevent scrolling */
+        }
+
+        /* Style for the video background */
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Ensures video covers the entire area */
+            z-index: -1;
+            /* Places the video behind content */
+        }
+
+        /* Content on top of the video */
+        .content {
+            position: relative;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-container {
+            position: relative;
+            width: 100vh;
+            height: 60vh;
+            margin: 50px auto;
+            perspective: 1000px;
+            overflow: visible;
+        }
+
+        .card {
+            position: absolute;
+            background-size: cover;
+            width: 200px;
+            height: 300px;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%) rotateZ(0deg) scale(0.8);
+            transform-origin: bottom center;
+            opacity: 0;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            border-radius: 7px;
+            transform-origin: bottom center;
+            text-align: start;
+            padding: 10px;
+            color: #ffffffa1;
+        }
+
+        .card:hover {
+            transform: translateX(-50%) rotateZ(var(--angle)) scale(1.2) !important;
+            /* Phóng to tại tâm đã cố định */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <video class="video-background" autoplay muted loop>
+        <source src="assets/Xiangyun Guochao stage recitation background - Happy New Year 2021.mp4" type="video/mp4">
+    </video>
+
+    <div class="content">
+        <div class="card-container"></div>
+    </div>
+    <div>
+        <input type="number" id="cardCountInput" placeholder="Enter number of cards" />
+        <button onclick="generateCards()">Generate Cards</button>
+    </div>
+    <script>
+        function generateCards(cardNumber) {
+            const container = document.querySelector('.card-container');
+            const cardCount = cardNumber || 10;
+
+            container.innerHTML = '';
+
+            for (let i = 0; i < cardCount; i++) {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.style.backgroundImage = `url(assets/lucky-money/${getRandomImage()})`
+                card.style.backgroundColor = getRandomColor();
+                card.textContent = i + 1;
+                container.appendChild(card);
+            }
+
+            showCardsFanEffect(cardCount);
+        }
+
+        function showCardsFanEffect(totalCards) {
+            const cards = document.querySelectorAll('.card');
+            const startAngle = -90;
+            const endAngle = 90;
+            const step = (endAngle - startAngle) / (totalCards - 1);
+
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    const angle = startAngle + step * index;
+                    card.style.setProperty('--angle', `${angle}deg`); // Cập nhật góc
+                    card.style.transform = `translateX(-50%) rotateZ(${angle}deg) scale(1)`;
+                    card.classList.add('show');
+                }, index * 300);
+            });
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function getRandomImage() {
+            min = Math.ceil(1);
+            max = Math.floor(10);
+            const cardIndex = Math.floor(Math.random() * (max - min + 1)) + min;
+            return `lucky-${cardIndex}.png`
+        }
+
+        window.requestAnimationFrame(() => {
+            setTimeout(() => {
+                let cardNumber = prompt("Please enter your number", 10);
+                generateCards(cardNumber)
+            }, 500);
+        });
+    </script>
+</body>
+
+</html>
