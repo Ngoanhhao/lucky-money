@@ -70,6 +70,7 @@
             text-align: start;
             padding: 10px;
             color: #ffffffa1;
+            cursor: pointer;
         }
 
         .card:hover {
@@ -88,7 +89,7 @@
             align-items: center;
             height: 50%;
             transform: translateY(40%) !important;
-            width: 300px;
+            width: 300px !important;
             height: 450px;
         }
 
@@ -96,6 +97,30 @@
             width: 300px;
             height: 450px;
             background-size: cover;
+            border: 0px !important;
+
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: grab;
+            position: relative;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .modal-content.removed {
+            transform: translate(200%, 200%);
+            opacity: 0 !important;
+        }
+
+        .card-content {
+            width: 300px;
+            height: 450px;
+            border-radius: 7px;
+            background-color: red;
         }
     </style>
 
@@ -118,7 +143,9 @@
     <!-- Modal HTML structure -->
     <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
-            <div class="modal-content"></div>
+            <div class="card-content">
+                <div class="modal-content" id="modal-content"></div>
+            </div>
         </div>
     </div>
 
@@ -163,6 +190,63 @@
             return `lucky-${cardIndex}.png`
         }
 
+        function handleDragDropCard() {
+            const card = document.getElementById('modal-content');
+            card.classList.remove('removed');
+            card.style.transform = 'none'
+
+            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+            let currentX = 0;
+            let currentY = 0;
+
+            card.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                card.style.transition = 'none';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                currentX = e.clientX;
+                currentY = e.clientY;
+
+                const offsetX = currentX - startX;
+                const offsetY = currentY - startY;
+
+                card.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (!isDragging) return;
+
+                isDragging = false;
+
+                const offsetX = currentX - startX;
+                const offsetY = currentY - startY;
+                const distance = Math.sqrt(offsetX ** 2 + offsetY ** 2);
+                const cardWidth = card.offsetWidth;
+                const cardHeight = card.offsetHeight;
+                const threshold = Math.min(cardWidth, cardHeight) * 1;
+
+                if (distance > threshold) {
+                    card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                    console.log('vap dau');
+                    card.classList.add('removed');
+                } else {
+                    card.style.transition = 'transform 0.3s ease';
+                    card.style.transform = 'translate(0, 0)';
+                }
+            });
+
+            document.addEventListener('mouseleave', () => {
+                isDragging = false;
+            });
+        }
+
         window.requestAnimationFrame(() => {
             setTimeout(() => {
                 let cardNumber = 10;
@@ -172,6 +256,7 @@
                     const backgroundUrl = clickedCard.css('background-image');
                     const url = backgroundUrl.replace('url("', '').replace('")', '');
                     $(".modal-content").css('background-image', `url(${url})`);
+                    handleDragDropCard();
                     $('#myModal').modal('show');
                 });
             }, 500);
